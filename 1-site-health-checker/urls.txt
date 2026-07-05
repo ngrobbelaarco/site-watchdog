@@ -1,0 +1,5 @@
+# Sample site list for demonstration
+https://github.com
+https://pypi.org
+https://www.npmjs.com
+https://github.com/this-page-does-not-exist-xyz123

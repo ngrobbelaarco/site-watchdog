@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-07-02T10:21:15+00:00",
+  "total_checked": 4,
+  "healthy_count": 2,
+  "unhealthy_count": 2,
+  "results": [
+    {
+      "url": "https://github.com",
+      "ok": true,
+      "status_code": 200,
+      "response_time_ms": 186.7,
+      "has_title": true,
+      "title": "GitHub \u00b7 Change is constant. GitHub keeps you ahead. \u00b7 GitHub",
+      "error": null,
+      "checked_at": "2026-07-02T10:21:14+00:00"
+    },
+    {
+      "url": "https://pypi.org",
+      "ok": true,
+      "status_code": 200,
+      "response_time_ms": 62.9,
+      "has_title": true,
+      "title": "PyPI \u00b7 The Python Package Index",
+      "error": null,
+      "checked_at": "2026-07-02T10:21:14+00:00"
+    },
+    {
+      "url": "https://www.npmjs.com",
+      "ok": false,
+      "status_code": 403,
+      "response_time_ms": 127.8,
+      "has_title": null,
+      "title": null,
+      "error": "HTTP error: Forbidden",
+      "checked_at": "2026-07-02T10:21:14+00:00"
+    },
+    {
+      "url": "https://github.com/this-page-does-not-exist-xyz123",
+      "ok": false,
+      "status_code": 404,
+      "response_time_ms": 192.2,
+      "has_title": null,
+      "title": null,
+      "error": "HTTP error: Not Found",
+      "checked_at": "2026-07-02T10:21:14+00:00"
+    }
+  ]
+}

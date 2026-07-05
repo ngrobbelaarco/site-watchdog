@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Watchdog — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EEF2F1;
+    --card: #FFFFFF;
+    --ink: #16211D;
+    --slate: #5C6B66;
+    --slate-light: #A9B5B0;
+    --line: #DCE3E0;
+    --green: #1F8A5F;
+    --green-soft: #E4F3EC;
+    --amber: #C98A1D;
+    --amber-soft: #FBF0DD;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 4rem 1.5rem 5rem; }
+
+  .brand-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .brand-mark {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 0 4px var(--green-soft);
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--slate);
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.75rem;
+  }
+
+  .lede {
+    font-size: 1.05rem;
+    color: var(--slate);
+    max-width: 60ch;
+    line-height: 1.55;
+    margin: 0 0 3rem;
+  }
+
+  .projects { display: flex; flex-direction: column; gap: 1.1rem; }
+
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.6rem 1.8rem;
+  }
+
+  .project-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+  .project-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--slate-light);
+  }
+
+  .project-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0.2rem 0 0.5rem;
+  }
+
+  .project-desc {
+    color: var(--slate);
+    font-size: 0.94rem;
+    line-height: 1.55;
+    margin: 0 0 1.1rem;
+    max-width: 62ch;
+  }
+
+  .stack-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--slate);
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+
+  .links { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+
+  .btn {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .btn-primary { background: var(--ink); color: var(--card); }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-secondary { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+  .btn-secondary:hover { background: var(--line); }
+
+  footer {
+    margin-top: 3rem;
+    font-size: 0.82rem;
+    color: var(--slate-light);
+  }
+  footer a { color: var(--slate); }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 1.9rem; }
+    .wrap { padding: 2.5rem 1.25rem 3.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand-row"><span class="brand-mark"></span><span class="eyebrow">Portfolio project</span></div>
+  <h1>Site Watchdog</h1>
+  <p class="lede">
+    A small toolkit built around one coherent concept — website health
+    monitoring for freelancers and agencies managing multiple client
+    sites. Three pieces, three skills, one product idea.
+  </p>
+
+  <div class="projects">
+    <div class="project-card">
+      <div class="project-top">
+        <span class="project-number">01</span>
+      </div>
+      <h2 class="project-title">Site Health Checker</h2>
+      <p class="project-desc">
+        A Python CLI tool that checks a list of URLs for uptime, response time, and broken content —
+        run for real against live sites, with a 20-test automated suite.
+      </p>
+      <div class="stack-tags"><span class="tag">Python</span><span class="tag">pytest</span></div>
+      <div class="links">
+        <a class="btn btn-primary" href="1-site-health-checker/sample_report.html">View sample report</a>
+        <a class="btn btn-secondary" href="https://github.com/ngrobbelaarco/site-watchdog/tree/main/1-site-health-checker">View code</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <span class="project-number">02</span>
+      </div>
+      <h2 class="project-title">QA Case Study</h2>
+      <p class="project-desc">
+        A task-manager module with 5 real, intentionally-placed bugs, a 21-test suite that catches
+        all of them, professional bug reports, and a verified fix — a full QA cycle, not just tests.
+      </p>
+      <div class="stack-tags"><span class="tag">Python</span><span class="tag">pytest</span></div>
+      <div class="links">
+        <a class="btn btn-primary" href="https://github.com/ngrobbelaarco/site-watchdog/blob/main/2-qa-case-study/bug_reports.md">View bug reports</a>
+        <a class="btn btn-secondary" href="https://github.com/ngrobbelaarco/site-watchdog/tree/main/2-qa-case-study">View code</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <span class="project-number">03</span>
+      </div>
+      <h2 class="project-title">Site Watchdog Dashboard</h2>
+      <p class="project-desc">
+        An interactive dashboard visualizing uptime and response-time data across multiple monitored
+        sites — vanilla HTML/CSS/JS, no build tools or frameworks required.
+      </p>
+      <div class="stack-tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
+      <div class="links">
+        <a class="btn btn-primary" href="3-ui-dashboard/site-watchdog-dashboard.html">Open live dashboard</a>
+        <a class="btn btn-secondary" href="https://github.com/ngrobbelaarco/site-watchdog/tree/main/3-ui-dashboard">View code</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Full source at <a href="https://github.com/ngrobbelaarco/site-watchdog">github.com/ngrobbelaarco/site-watchdog</a>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Runtime: none — site_health_checker.py uses only the Python standard library.
+# This is intentional: a client should be able to run this tool without
+# setting up a virtual environment or installing anything.
+
+# Dev/test dependencies only:
+pytest>=7.4
