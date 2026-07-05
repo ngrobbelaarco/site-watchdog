@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchdog — Site Health Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EEF2F1;
+    --card: #FFFFFF;
+    --ink: #16211D;
+    --slate: #5C6B66;
+    --slate-light: #A9B5B0;
+    --line: #DCE3E0;
+    --green: #1F8A5F;
+    --green-soft: #E4F3EC;
+    --amber: #C98A1D;
+    --amber-soft: #FBF0DD;
+    --red: #C2412B;
+    --red-soft: #FBE7E2;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ---------- Sidebar ---------- */
+
+  .sidebar {
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    padding: 1.75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .brand-mark {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--green);
+    display: inline-block;
+    margin-right: 0.35rem;
+    box-shadow: 0 0 0 3px var(--green-soft);
+  }
+
+  .brand h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .tagline {
+    font-size: 0.78rem;
+    color: var(--slate);
+    margin: 0 0 1.6rem 1.3rem;
+  }
+
+  .search {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+  .search:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+  }
+
+  .site-list-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate-light);
+    margin: 0 0 0.6rem 0.1rem;
+  }
+
+  .site-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    overflow-y: auto;
+  }
+
+  .site-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 0.6rem;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+  }
+  .site-item:hover { background: var(--paper); }
+  .site-item.active { background: var(--paper); border-color: var(--line); }
+  .site-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+  .pulse {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pulse.ok { background: var(--green); }
+  .pulse.warn { background: var(--amber); }
+  .pulse.down { background: var(--red); }
+
+  .pulse.ok::after, .pulse.warn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: ping 2.2s cubic-bezier(0.4, 0, 0.3, 1) infinite;
+  }
+  .pulse.warn::after { animation-duration: 3.4s; }
+
+  @keyframes ping {
+    0% { transform: scale(1); opacity: 0.65; }
+    75%, 100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulse.ok::after, .pulse.warn::after { animation: none; }
+  }
+
+  .site-item-text { display: flex; flex-direction: column; gap: 0.05rem; min-width: 0; }
+  .site-item-name { font-size: 0.87rem; font-weight: 500; color: var(--ink); }
+  .site-item-domain {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--slate);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- Main panel ---------- */
+
+  .main { padding: 2.25rem 2.75rem; max-width: 900px; }
+
+  .main-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .main-title-row { display: flex; align-items: center; gap: 0.7rem; }
+
+  .main-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .domain-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--slate);
+    margin-top: 0.25rem;
+  }
+
+  .status-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.32rem 0.65rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .status-pill.ok { color: var(--green); background: var(--green-soft); }
+  .status-pill.warn { color: var(--amber); background: var(--amber-soft); }
+  .status-pill.down { color: var(--red); background: var(--red-soft); }
+
+  .recheck-btn {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: var(--ink);
+    color: var(--card);
+    border: none;
+    padding: 0.6rem 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .recheck-btn:hover { opacity: 0.88; }
+  .recheck-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .recheck-btn:active { transform: translateY(1px); }
+
+  /* Stats row */
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1rem 1.15rem;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--slate);
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  /* Chart card */
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--slate);
+    margin: 0 0 1rem 0;
+  }
+
+  .chart-wrap { width: 100%; }
+  .chart-wrap svg { width: 100%; height: auto; display: block; }
+  .chart-day-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--slate-light);
+    margin-top: 0.4rem;
+  }
+
+  /* Issues */
+
+  .issue {
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .issue:last-child { border-bottom: none; }
+
+  .issue-severity-bar {
+    width: 3px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .issue.high .issue-severity-bar { background: var(--red); }
+  .issue.medium .issue-severity-bar { background: var(--amber); }
+
+  .issue-body { flex: 1; }
+  .issue-type {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.15rem;
+  }
+  .issue-path {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--slate);
+  }
+  .issue-time {
+    font-size: 0.75rem;
+    color: var(--slate-light);
+    white-space: nowrap;
+    align-self: center;
+  }
+
+  .no-issues {
+    font-size: 0.85rem;
+    color: var(--slate);
+    padding: 0.5rem 0;
+  }
+
+  .footer-note {
+    font-size: 0.76rem;
+    color: var(--slate-light);
+    text-align: right;
+    margin-top: 0.4rem;
+  }
+
+  @media (max-width: 760px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--line); }
+    .main { padding: 1.5rem 1.25rem; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark"></span><h1>Watchdog</h1></div>
+    <p class="tagline">site health, at a glance</p>
+
+    <input class="search" id="search" type="text" placeholder="Search sites..." aria-label="Search sites">
+
+    <p class="site-list-label">Monitored sites (6)</p>
+    <ul class="site-list" id="siteList" role="listbox" aria-label="Monitored sites"></ul>
+  </aside>
+
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+  const sites = [
+    {
+      id: "acme",
+      name: "Acme Co",
+      domain: "acme.co",
+      status: "ok",
+      uptime: "99.97%",
+      avgResponse: "118ms",
+      lastChecked: "2 min ago",
+      history: [110, 122, 108, 130, 115, 119, 118],
+      issues: []
+    },
+    {
+      id: "blume",
+      name: "Blume Studio",
+      domain: "blume.design",
+      status: "warn",
+      uptime: "98.2%",
+      avgResponse: "612ms",
+      lastChecked: "4 min ago",
+      history: [180, 210, 340, 480, 590, 640, 612],
+      issues: [
+        { severity: "medium", type: "Slow response", path: "/checkout", time: "1h ago" }
+      ]
+    },
+    {
+      id: "northwind",
+      name: "Northwind Traders",
+      domain: "northwind.io",
+      status: "ok",
+      uptime: "100%",
+      avgResponse: "94ms",
+      lastChecked: "1 min ago",
+      history: [88, 91, 96, 90, 93, 95, 94],
+      issues: []
+    },
+    {
+      id: "ferro",
+      name: "Ferro & Sons",
+      domain: "ferroandsons.com",
+      status: "down",
+      uptime: "91.4%",
+      avgResponse: "—",
+      lastChecked: "just now",
+      history: [140, 155, 148, 900, 0, 0, 0],
+      issues: [
+        { severity: "high", type: "Server error (500)", path: "/", time: "38 min ago" },
+        { severity: "high", type: "Timeout", path: "/products", time: "35 min ago" }
+      ]
+    },
+    {
+      id: "seventh",
+      name: "7th Street Cafe",
+      domain: "7thstreetcafe.com",
+      status: "ok",
+      uptime: "99.8%",
+      avgResponse: "203ms",
+      lastChecked: "3 min ago",
+      history: [190, 205, 198, 215, 200, 208, 203],
+      issues: []
+    },
+    {
+      id: "lumen",
+      name: "Lumen Legal",
+      domain: "lumenlegal.co.za",
+      status: "warn",
+      uptime: "97.5%",
+      avgResponse: "245ms",
+      lastChecked: "6 min ago",
+      history: [200, 195, 210, 230, 240, 250, 245],
+      issues: [
+        { severity: "medium", type: "Broken link (404)", path: "/old-promo", time: "3h ago" }
+      ]
+    }
+  ];
+
+  const statusLabel = { ok: "Healthy", warn: "Degraded", down: "Down" };
+
+  let activeId = sites[0].id;
+
+  function renderSidebar(filter = "") {
+    const list = document.getElementById("siteList");
+    list.innerHTML = "";
+    sites
+      .filter(s => s.name.toLowerCase().includes(filter.toLowerCase()) || s.domain.toLowerCase().includes(filter.toLowerCase()))
+      .forEach(site => {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.className = "site-item" + (site.id === activeId ? " active" : "");
+        btn.setAttribute("role", "option");
+        btn.setAttribute("aria-selected", site.id === activeId);
+        btn.innerHTML = `
+          <span class="pulse ${site.status}"></span>
+          <span class="site-item-text">
+            <span class="site-item-name">${site.name}</span>
+            <span class="site-item-domain">${site.domain}</span>
+          </span>`;
+        btn.addEventListener("click", () => { activeId = site.id; renderAll(); });
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+  }
+
+  function buildSparkline(history) {
+    const w = 600, h = 120, pad = 10;
+    const max = Math.max(...history, 1);
+    const min = Math.min(...history, 0);
+    const range = Math.max(max - min, 1);
+    const stepX = (w - pad * 2) / (history.length - 1);
+
+    const points = history.map((v, i) => {
+      const x = pad + i * stepX;
+      const y = h - pad - ((v - min) / range) * (h - pad * 2);
+      return `${x},${y}`;
+    }).join(" ");
+
+    const gridLines = [0.25, 0.5, 0.75].map(f =>
+      `<line x1="0" y1="${h * f}" x2="${w}" y2="${h * f}" stroke="#DCE3E0" stroke-width="1" />`
+    ).join("");
+
+    return `
+      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Response time over the last 7 days">
+        ${gridLines}
+        <polyline points="${points}" fill="none" stroke="#16211D" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+      </svg>`;
+  }
+
+  function renderMain() {
+    const site = sites.find(s => s.id === activeId);
+    const main = document.getElementById("main");
+
+    const issuesHtml = site.issues.length
+      ? site.issues.map(issue => `
+          <div class="issue ${issue.severity}">
+            <div class="issue-severity-bar"></div>
+            <div class="issue-body">
+              <div class="issue-type">${issue.type}</div>
+              <div class="issue-path">${issue.path}</div>
+            </div>
+            <div class="issue-time">${issue.time}</div>
+          </div>`).join("")
+      : `<p class="no-issues">No issues found on the last scan.</p>`;
+
+    main.innerHTML = `
+      <div class="main-header">
+        <div>
+          <div class="main-title-row">
+            <h2 class="main-title">${site.name}</h2>
+            <span class="status-pill ${site.status}">${statusLabel[site.status]}</span>
+          </div>
+          <div class="domain-link">${site.domain}</div>
+        </div>
+        <button class="recheck-btn" id="recheckBtn">Recheck now</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Uptime (30d)</div>
+          <div class="stat-value">${site.uptime}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg response</div>
+          <div class="stat-value">${site.avgResponse}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last checked</div>
+          <div class="stat-value" style="font-size:1.1rem;">${site.lastChecked}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Response time — last 7 days</p>
+        <div class="chart-wrap">${buildSparkline(site.history)}</div>
+        <div class="chart-day-labels">
+          <span>7d ago</span><span>6d</span><span>5d</span><span>4d</span><span>3d</span><span>2d</span><span>today</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Issues found (${site.issues.length})</p>
+        ${issuesHtml}
+      </div>
+
+      <p class="footer-note">Full scan completed ${site.lastChecked}</p>
+    `;
+
+    document.getElementById("recheckBtn").addEventListener("click", (e) => {
+      e.target.textContent = "Checking...";
+      e.target.disabled = true;
+      setTimeout(() => {
+        e.target.textContent = "Recheck now";
+        e.target.disabled = false;
+      }, 900);
+    });
+  }
+
+  function renderAll() {
+    renderSidebar(document.getElementById("search").value);
+    renderMain();
+  }
+
+  document.getElementById("search").addEventListener("input", (e) => renderSidebar(e.target.value));
+
+  renderAll();
+</script>
+
+</body>
+</html>

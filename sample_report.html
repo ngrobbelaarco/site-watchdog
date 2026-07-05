@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Site Health Report</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", sans-serif; background: #f4f5f7; color: #1a1f26; padding: 2rem; }
+  h1 { margin-bottom: 0.25rem; }
+  .summary { color: #4b5563; margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  th, td { text-align: left; padding: 0.6rem 0.9rem; border-bottom: 1px solid #e5e7eb; font-size: 0.92rem; }
+  th { background: #eef0f3; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; color: #4b5563; }
+  tr.ok td:first-child { color: #15803d; font-weight: 600; }
+  tr.issue td:first-child { color: #b91c1c; font-weight: 600; }
+  code { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+  <h1>Site Health Report</h1>
+  <p class="summary">2 of 4 URLs healthy — generated 2026-07-02T10:21:15+00:00</p>
+  <table>
+    <tr><th>Status</th><th>URL</th><th>Code</th><th>Response time</th><th>Detail</th></tr>
+    
+            <tr class="ok">
+              <td>OK</td>
+              <td><code>https://github.com</code></td>
+              <td>200</td>
+              <td>187 ms</td>
+              <td>GitHub · Change is constant. GitHub keeps you ahead. · GitHub</td>
+            </tr>
+            <tr class="ok">
+              <td>OK</td>
+              <td><code>https://pypi.org</code></td>
+              <td>200</td>
+              <td>63 ms</td>
+              <td>PyPI · The Python Package Index</td>
+            </tr>
+            <tr class="issue">
+              <td>ISSUE</td>
+              <td><code>https://www.npmjs.com</code></td>
+              <td>403</td>
+              <td>128 ms</td>
+              <td>HTTP error: Forbidden</td>
+            </tr>
+            <tr class="issue">
+              <td>ISSUE</td>
+              <td><code>https://github.com/this-page-does-not-exist-xyz123</code></td>
+              <td>404</td>
+              <td>192 ms</td>
+              <td>HTTP error: Not Found</td>
+            </tr>
+  </table>
+</body>
+</html>
